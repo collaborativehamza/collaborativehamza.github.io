@@ -16,6 +16,16 @@
     --text:#EFEBE2; --text-dim:#8B8781;
     --accent:#C9A063; --accent-dim:rgba(201,160,99,.14);
     --line:rgba(239,235,226,0.09);
+    --bg-rgb:11,11,12; --text-rgb:239,235,226; --accent-rgb:201,160,99;
+    --on-accent:#161512; --accent-hover:#ddb579;
+  }
+  html[data-theme="light"]{
+    --bg:#FFFFFF; --bg-alt:#F6F5F2; --surface:#FFFFFF;
+    --text:#111111; --text-dim:#6b675f;
+    --accent:#111111; --accent-dim:rgba(17,17,17,.08);
+    --line:rgba(17,17,17,0.1);
+    --bg-rgb:255,255,255; --text-rgb:17,17,17; --accent-rgb:17,17,17;
+    --on-accent:#FFFFFF; --accent-hover:#2a2a2a;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   html{scroll-behavior:smooth; overflow-x:hidden; width:100%;}
@@ -32,16 +42,16 @@
   img,iframe{max-width:100%;}
 
   /* selection: accent highlight, black text, instead of default browser blue */
-  ::selection{background:var(--accent); color:#0B0B0C;}
-  ::-moz-selection{background:var(--accent); color:#0B0B0C;}
+  ::selection{background:var(--accent); color:var(--bg);}
+  ::-moz-selection{background:var(--accent); color:var(--bg);}
 
   /* wavy animated gradient background, sits behind everything */
   .bg-wave{
     position:fixed; inset:-10%; z-index:-2; pointer-events:none;
     background:
-      radial-gradient(ellipse 60% 40% at 20% 20%, rgba(201,160,99,.16) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 50% at 80% 30%, rgba(201,160,99,.10) 0%, transparent 60%),
-      radial-gradient(ellipse 55% 45% at 40% 85%, rgba(201,160,99,.09) 0%, transparent 65%);
+      radial-gradient(ellipse 60% 40% at 20% 20%, rgba(var(--accent-rgb),.16) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 80% 30%, rgba(var(--accent-rgb),.10) 0%, transparent 60%),
+      radial-gradient(ellipse 55% 45% at 40% 85%, rgba(var(--accent-rgb),.09) 0%, transparent 65%);
     background-repeat:no-repeat;
     animation:waveDrift 22s ease-in-out infinite;
     filter:blur(4px);
@@ -57,11 +67,11 @@
   .cur-glow{
     position:fixed; top:0; left:0; z-index:-1; pointer-events:none;
     width:220px; height:220px; border-radius:50%; transform:translate(-50%,-50%);
-    background:radial-gradient(circle, rgba(201,160,99,.18) 0%, rgba(201,160,99,0) 70%);
+    background:radial-gradient(circle, rgba(var(--accent-rgb),.18) 0%, rgba(var(--accent-rgb),0) 70%);
     filter:blur(6px); will-change:transform; opacity:0;
     transition:opacity .4s ease;
   }
-  .cur-glow.active{opacity:1;}
+  .cur-glow.active{opacity:.25;}
   @media (pointer:coarse){ .bg-wave{animation-duration:34s;} .cur-glow{display:none;} }
 
   /* film-grain overlay, premium tactile texture */
@@ -83,11 +93,11 @@
   }
   .cur-dot{width:6px;height:6px;background:var(--accent);}
   .cur-ring{
-    width:34px;height:34px;border:1px solid rgba(239,235,226,.35);
+    width:34px;height:34px;border:1px solid rgba(var(--text-rgb),.35);
     transition:width .25s ease,height .25s ease,border-color .25s ease,background .25s ease,opacity .25s ease;
   }
   .cur-ring.hover{
-    width:64px;height:64px;background:rgba(201,160,99,.1);border-color:var(--accent);
+    width:64px;height:64px;background:rgba(var(--accent-rgb),.1);border-color:var(--accent);
   }
   @media (pointer:coarse){ .cur-dot,.cur-ring,.grain{display:none;} body{cursor:auto;} a,button,.video-frame{cursor:pointer;} }
 
@@ -102,20 +112,20 @@
 
   /* timeline nav */
   .timeline{
-    position:fixed; top:0; left:0; right:0; z-index:50; background:rgba(11,11,12,0.5);
+    position:fixed; top:0; left:0; right:0; z-index:50; background:rgba(var(--bg-rgb),0.5);
     backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
     transition:background .4s ease;
   }
   .timeline::after{
     content:''; position:absolute; left:0; right:0; top:100%; height:56px;
-    background:linear-gradient(to bottom, rgba(11,11,12,0.35), transparent);
+    background:linear-gradient(to bottom, rgba(var(--bg-rgb),0.35), transparent);
     backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
     -webkit-mask-image:linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
     mask-image:linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
     pointer-events:none;
   }
   .timeline.scrolled{
-    background:rgba(11,11,12,0.62);
+    background:rgba(var(--bg-rgb),0.62);
   }
   body{ padding-top:64px; }
   #intro,#process,#work,#about,#contact{ scroll-margin-top:84px; }
@@ -143,6 +153,13 @@
   .timeline-track a.active{color:var(--text); border-bottom-color:var(--accent);}
   .timeline-track a.active .tick{background:var(--accent);}
   .timeline-track a:hover{color:var(--text);}
+  .theme-toggle{
+    margin-left:16px; width:34px; height:34px; border-radius:50%;
+    border:1px solid var(--line); background:transparent; color:var(--text-dim);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    transition:color .2s ease, border-color .2s ease, transform .3s ease;
+  }
+  .theme-toggle:hover{color:var(--accent); border-color:var(--accent);}
 
   section{padding:150px 0;}
   section.tight{padding:96px 0;}
@@ -178,8 +195,8 @@
     border:1px solid var(--line); border-radius:100px; transition:.3s;
     letter-spacing:.02em;
   }
-  .btn-fill{background:var(--accent); color:#171208; border-color:var(--accent); font-weight:500;}
-  .btn-fill:hover{background:#ddb579; transform:translateY(-2px);}
+  .btn-fill{background:var(--accent); color:var(--on-accent); border-color:var(--accent); font-weight:500;}
+  .btn-fill:hover{background:var(--accent-hover); border-color:var(--accent-hover); transform:translateY(-2px);}
   .btn-outline:hover{border-color:var(--text); transform:translateY(-2px);}
   .btn-mini{
     font-family:'JetBrains Mono',monospace; font-size:10.5px; padding:6px 14px;
@@ -210,7 +227,7 @@
     border-radius:14px; border:1px solid var(--line); background:var(--surface);
     cursor:pointer; transition:border-color .3s ease;
   }
-  .video-frame:hover{border-color:rgba(201,160,99,.4);}
+  .video-frame:hover{border-color:rgba(var(--accent-rgb),.4);}
   .video-frame.vertical{padding-bottom:177.78%; width:100%;}
   .video-frame iframe{position:absolute; top:0; left:0; width:100%; height:100%; border:0; pointer-events:none;}
 
@@ -231,7 +248,7 @@
     background:var(--accent); display:flex; align-items:center; justify-content:center;
     opacity:0; transition:opacity .3s ease, transform .3s ease;
   }
-  .video-frame .play svg{margin-left:3px;}
+  .video-frame .play svg{margin-left:3px; color:var(--on-accent);}
   .video-frame:hover .thumb{transform:scale(1.05); filter:brightness(1) saturate(1);}
   .video-frame:hover .thumb-tint{opacity:.3;}
   .video-frame:hover .play{opacity:1; transform:translate(-50%,-50%) scale(1);}
@@ -439,6 +456,9 @@
     <a href="#about"><span class="tick"></span>ABOUT</a>
     <a href="#contact"><span class="tick"></span>CONTACT</a>
     <span class="brand">AAMIR<span class="last">HÂMZÂ</span></span>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle light and dark theme">
+      <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+    </button>
   </div>
 </nav>
 
@@ -638,6 +658,26 @@
   toggleNav();
   window.addEventListener('scroll', toggleNav, { passive: true });
 
+  /* light/dark theme toggle, remembered across visits */
+  const SUN = '<circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>';
+  const MOON = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+  const themeToggle = document.getElementById('themeToggle');
+  const themeIcon = document.getElementById('themeIcon');
+  function applyTheme(theme){
+    document.documentElement.setAttribute('data-theme', theme);
+    themeIcon.innerHTML = theme === 'light' ? SUN : MOON;
+  }
+  if(localStorage.getItem('themeResetV2') !== 'done'){
+    localStorage.removeItem('theme');
+    localStorage.setItem('themeResetV2', 'done');
+  }
+  applyTheme(localStorage.getItem('theme') || 'dark');
+  themeToggle.addEventListener('click', () => {
+    const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    applyTheme(next);
+    localStorage.setItem('theme', next);
+  });
+
   /* video frames: static thumbnail by default, zoom + reveal play button on hover,
      click swaps in the live (autoplaying) iframe */
   document.querySelectorAll('.video-frame').forEach(frame => {
@@ -653,14 +693,15 @@
     thumb.loading = 'lazy';
     thumb.decoding = 'async';
     thumb.alt = '';
-    thumb.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+    thumb.src = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+    thumb.onerror = () => { thumb.onerror = null; thumb.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`; };
 
     const tint = document.createElement('div');
     tint.className = 'thumb-tint';
 
     const play = document.createElement('div');
     play.className = 'play';
-    play.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="#161512"><path d="M8 5v14l11-7z"/></svg>';
+    play.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
 
     frame.prepend(play);
     frame.prepend(tint);

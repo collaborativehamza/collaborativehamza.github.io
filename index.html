@@ -715,37 +715,6 @@
       el.addEventListener('mouseenter', () => ring.classList.add('hover'));
       el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
     });
-
-    /* soft hover tick: a tiny, breathy noise-tap synthesized on the fly, no audio file needed.
-       Starts muted until the first click, per browser autoplay rules. */
-    let audioCtx = null, audioReady = false;
-    const armAudio = () => {
-      if (audioReady) return;
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      audioReady = true;
-      window.removeEventListener('pointerdown', armAudio);
-    };
-    window.addEventListener('pointerdown', armAudio, { once:true });
-    function hoverTick(){
-      if (!audioReady || audioCtx.state === 'suspended') return;
-      const t0 = audioCtx.currentTime;
-      const bufferSize = audioCtx.sampleRate * 0.03;
-      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
-      const noise = audioCtx.createBufferSource();
-      noise.buffer = buffer;
-      const filter = audioCtx.createBiquadFilter();
-      filter.type = 'bandpass'; filter.frequency.value = 2200; filter.Q.value = 0.7;
-      const gain = audioCtx.createGain();
-      gain.gain.setValueAtTime(0.05, t0);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.05);
-      noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
-      noise.start(t0); noise.stop(t0 + 0.05);
-    }
-    document.querySelectorAll('a,button,.video-frame,.tool-icon').forEach(el => {
-      el.addEventListener('mouseenter', hoverTick);
-    });
   }
 
   /* jelly scroll: a spring tracks scroll velocity; revealed elements ride the offset and settle

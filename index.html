@@ -99,6 +99,12 @@
   .cur-ring.hover{
     width:64px;height:64px;background:rgba(var(--accent-rgb),.1);border-color:var(--accent);
   }
+  /* light theme: the video overlay is dark, so the cursor (and close button) switch to white while it's open */
+  html[data-theme="light"] body.lightbox-open .cur-dot{background:#fff;}
+  html[data-theme="light"] body.lightbox-open .cur-ring{border-color:rgba(255,255,255,.6);}
+  html[data-theme="light"] body.lightbox-open .cur-ring.hover{background:rgba(255,255,255,.12); border-color:#fff;}
+  html[data-theme="light"] .lightbox-close{color:#fff; border-color:rgba(255,255,255,.3);}
+  html[data-theme="light"] .lightbox-close:hover{color:#fff; border-color:#fff;}
   @media (pointer:coarse){ .cur-dot,.cur-ring,.grain{display:none;} body{cursor:auto;} a,button,.video-frame{cursor:pointer;} }
 
   /* scroll reveal */
@@ -337,13 +343,14 @@
     section{padding:88px 0;}
     section.tight{padding:56px 0;}
     .wrap{padding:0 20px;}
-    /* small screens: no sliding nav. Brand sits on its own row, the four links share the row under it evenly,
-       and the theme toggle drops out of the bar to the top-right corner just beneath it */
-    .timeline-track{padding:6px 20px 0; height:auto; gap:0; flex-wrap:wrap; align-content:flex-start;}
-    body{ padding-top:66px; }
-    .brand{flex:0 0 100%; order:-1; margin:0; padding:0; font-size:14px; line-height:1.2;}
-    .brand .last{font-size:14px;}
-    .timeline-track a{flex:1 1 0; min-width:0; justify-content:center; height:40px; padding:0 2px; font-size:10px; gap:5px; letter-spacing:.06em;}
+    /* small screens: no sliding nav. Name and the four links stay on ONE line, text scaled down with the screen
+       width; the theme toggle drops out of the bar to the top-right corner just beneath it */
+    .timeline-track{padding:0 12px; height:46px; gap:0; flex-wrap:nowrap; overflow-x:auto;}
+    body{ padding-top:46px; }
+    .brand{flex:0 0 auto; order:-1; margin-right:auto; padding:0 6px 0 0; font-size:clamp(9.5px,3vw,13px); line-height:1.15;}
+    .brand .last{font-size:clamp(9.5px,3vw,13px); margin-left:2px;}
+    .timeline-track a{flex:0 0 auto; padding:0 clamp(4px,1.3vw,10px); height:100%; font-size:clamp(7.5px,2.2vw,9.5px); gap:3px; letter-spacing:.03em;}
+    .timeline-track a .tick{width:4px; height:4px;}
     .theme-toggle{
       position:absolute; top:calc(100% + 10px); right:16px; margin:0; z-index:2;
       width:36px; height:36px; background:rgba(var(--bg-rgb),.82);
@@ -372,6 +379,9 @@
     .tool-row{gap:10px;}
     .tool-icon{width:46px; height:46px; border-radius:12px; padding:7px;}
     footer{flex-direction:column; align-items:flex-start; gap:6px; padding:26px 0;}
+  }
+  @media (max-width:520px){
+    .timeline-track a .tick{display:none;}
   }
   @media (max-width:420px){
     .name-intro .last{font-size:12vw;}
@@ -704,12 +714,14 @@
     lightbox.classList.add('open');
     lightboxClose.classList.add('open');
     document.body.style.overflow = 'hidden';
+    document.body.classList.add('lightbox-open');
   }
   function closeLightbox(){
     lightbox.classList.remove('open');
     lightboxClose.classList.remove('open');
     lightboxInner.innerHTML = '';
     document.body.style.overflow = '';
+    document.body.classList.remove('lightbox-open');
   }
   lightboxClose.addEventListener('click', closeLightbox);
   lightbox.addEventListener('click', (e) => { if(e.target === lightbox) closeLightbox(); });
@@ -738,37 +750,6 @@
     document.querySelectorAll('a,button,.video-frame').forEach(el => {
       el.addEventListener('mouseenter', () => ring.classList.add('hover'));
       el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
-    });
-
-    /* soft hover tick: a tiny, breathy noise-tap synthesized on the fly, no audio file needed.
-       Starts muted until the first click, per browser autoplay rules. */
-    let audioCtx = null, audioReady = false;
-    const armAudio = () => {
-      if (audioReady) return;
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      audioReady = true;
-      window.removeEventListener('pointerdown', armAudio);
-    };
-    window.addEventListener('pointerdown', armAudio, { once:true });
-    function hoverTick(){
-      if (!audioReady || audioCtx.state === 'suspended') return;
-      const t0 = audioCtx.currentTime;
-      const bufferSize = audioCtx.sampleRate * 0.03;
-      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
-      const noise = audioCtx.createBufferSource();
-      noise.buffer = buffer;
-      const filter = audioCtx.createBiquadFilter();
-      filter.type = 'bandpass'; filter.frequency.value = 2200; filter.Q.value = 0.7;
-      const gain = audioCtx.createGain();
-      gain.gain.setValueAtTime(0.05, t0);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.05);
-      noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
-      noise.start(t0); noise.stop(t0 + 0.05);
-    }
-    document.querySelectorAll('a,button,.video-frame,.tool-icon').forEach(el => {
-      el.addEventListener('mouseenter', hoverTick);
     });
   }
 

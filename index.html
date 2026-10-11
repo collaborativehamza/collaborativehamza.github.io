@@ -131,7 +131,7 @@
   #intro,#process,#work,#about{ scroll-margin-top:84px; }
   .timeline-track{
     display:flex; align-items:center; gap:0; max-width:1120px; margin:0 auto;
-    padding:0 40px; height:64px; overflow-x:auto;
+    padding:0 40px; height:64px; overflow:visible;
   }
   .brand{
     margin-right:auto; padding-right:20px; white-space:nowrap; order:-1;
@@ -220,7 +220,8 @@
   .work-cat{margin-bottom:36px;}
   .work-cat h3{font-size:26px; margin-bottom:8px; font-weight:500;}
   .work-cat .desc{color:var(--text-dim); font-size:14.5px; margin-bottom:32px; max-width:560px;}
-  .video-row{display:flex; gap:24px; flex-wrap:wrap;}
+  .video-row{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:24px;}
+  .video-row .video-card{flex:none; min-width:0; max-width:540px;}
   .video-card{flex:1 1 320px; min-width:280px;}
   .video-frame{
     position:relative; padding-bottom:56.25%; height:0; overflow:hidden;
@@ -268,6 +269,14 @@
   .shorts-row.cols-3 .video-card,
   .shorts-row.cols-2 .video-card,
   .shorts-row.cols-5 .video-card{min-width:0;}
+  .see-more{
+    display:none; margin-top:22px; padding:13px 26px;
+    font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.02em;
+    background:transparent; color:var(--text); border:1px solid var(--line);
+    border-radius:100px; cursor:pointer; transition:.3s;
+  }
+  .see-more:hover{border-color:var(--text); transform:translateY(-2px);}
+  .see-more[hidden]{display:none !important;}
   .add-slot{
     display:flex; align-items:center; justify-content:center;
     border:1px dashed var(--line); border-radius:14px; color:var(--text-dim);
@@ -293,10 +302,9 @@
     display:flex; align-items:center; justify-content:center; color:var(--text-dim);
     transition:.25s; padding:9px; box-sizing:border-box;
   }
-  .tool-icon img{filter:grayscale(1) brightness(1.5) contrast(.9); opacity:.85; transition:filter .25s ease, opacity .25s ease;}
+  /* full-colour logos in both themes (the same look the light theme had) */
+  .tool-icon img{filter:none; opacity:.82; transition:opacity .25s ease;}
   .tool-icon:hover img{opacity:1;}
-  html[data-theme="light"] .tool-icon img{filter:none; opacity:.82;}
-  html[data-theme="light"] .tool-icon:hover img{opacity:1;}
   /* Notion/Figma source art has more internal padding than the Pr/Ae/Ps badges, so they read smaller at the same box size */
   .tool-icon[title="Notion"] img{transform:scale(1.22);}
   .tool-icon[title="Figma"] img{transform:scale(1.08);}
@@ -312,19 +320,12 @@
     .hero-grid{grid-template-columns:1fr; gap:36px; align-items:start;}
     .hero-meta{display:flex; gap:28px; flex-wrap:wrap;}
     .process-grid{grid-template-columns:repeat(2,1fr);}
-    .shorts-row,
-    .shorts-row.cols-3,
-    .shorts-row.cols-5{
-      display:flex; flex-wrap:nowrap; overflow-x:auto; gap:16px;
-      scroll-snap-type:x proximity; -webkit-overflow-scrolling:touch;
-      padding-bottom:8px; margin-bottom:8px;
-      scrollbar-width:thin; scrollbar-color:var(--line) transparent;
-    }
-    .shorts-row .video-card,
-    .shorts-row.cols-3 .video-card,
-    .shorts-row.cols-5 .video-card{
-      flex:0 0 auto; width:30%; scroll-snap-align:start;
-    }
+    /* small screens: no sliding rail. Two shorts per row; only the first two show until "See More" is tapped */
+    .shorts-row.cols-5{grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; max-width:640px;}
+    .shorts-row.cols-5:not(.expanded) .video-card:nth-child(n+3){display:none;}
+    .video-row{grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px;}
+    #longRow:not(.expanded) .video-card:nth-child(n+3){display:none;}
+    .see-more{display:inline-flex; align-items:center; justify-content:center;}
     .about-grid{grid-template-columns:1fr; gap:44px;}
     .about-grid p{max-width:none;}
     .about-grid .stats{margin-top:0;}
@@ -336,11 +337,17 @@
     section{padding:88px 0;}
     section.tight{padding:56px 0;}
     .wrap{padding:0 20px;}
-    .timeline-track{padding:0 20px; height:54px; gap:2px;}
-    body{ padding-top:54px; }
-    .brand{font-size:14px; padding-right:12px;}
+    /* small screens: no sliding nav. Brand sits on its own row, the four links share the row under it evenly,
+       and the theme toggle drops out of the bar to the top-right corner just beneath it */
+    .timeline-track{padding:6px 20px 0; height:auto; gap:0; flex-wrap:wrap; align-content:flex-start;}
+    body{ padding-top:66px; }
+    .brand{flex:0 0 100%; order:-1; margin:0; padding:0; font-size:14px; line-height:1.2;}
     .brand .last{font-size:14px;}
-    .timeline-track a{padding:0 12px; font-size:10px; gap:6px;}
+    .timeline-track a{flex:1 1 0; min-width:0; justify-content:center; height:40px; padding:0 2px; font-size:10px; gap:5px; letter-spacing:.06em;}
+    .theme-toggle{
+      position:absolute; top:calc(100% + 10px); right:16px; margin:0; z-index:2;
+      width:36px; height:36px; background:rgba(var(--bg-rgb),.82);
+    }
     .hero{padding:78px 0 40px;}
     .name-intro{margin-bottom:16px;}
     .name-intro .first{font-size:clamp(24px,9.3vw,47px); letter-spacing:.01em; margin-bottom:2px;}
@@ -359,11 +366,8 @@
     .stats{gap:20px;}
     .stat{padding-left:16px;}
     .stat .num{font-size:28px;}
-    .shorts-row .video-card,
-    .shorts-row.cols-3 .video-card,
-    .shorts-row.cols-5 .video-card{width:46%;}
-    .video-row{gap:16px;}
-    .video-row .video-card{flex:1 1 100%; min-width:0;}
+    .shorts-row.cols-5{gap:12px;}
+    .video-row{grid-template-columns:minmax(0,1fr); gap:16px;}
     .video-frame .play{width:44px; height:44px;}
     .tool-row{gap:10px;}
     .tool-icon{width:46px; height:46px; border-radius:12px; padding:7px;}
@@ -372,9 +376,6 @@
   @media (max-width:420px){
     .name-intro .last{font-size:12vw;}
     .name-intro .first{font-size:7.4vw;}
-    .shorts-row .video-card,
-    .shorts-row.cols-3 .video-card,
-    .shorts-row.cols-5 .video-card{width:58%;}
   }
   @media (hover:none){
     .video-frame:hover .thumb{transform:none; filter:brightness(.94);}
@@ -491,7 +492,7 @@
 
     <div class="work-cat">
       <h3 style="margin-bottom:14px;">Short-Form</h3>
-      <div class="shorts-row cols-5">
+      <div class="shorts-row cols-5" id="shortsRow">
         <div class="video-card">
           <div class="video-frame vertical">
             <iframe src="https://www.youtube.com/embed/kD36il-xpzE" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
@@ -499,41 +500,48 @@
         </div>
         <div class="video-card">
           <div class="video-frame vertical">
-            <iframe src="https://www.youtube.com/embed/Vhne4KKyRlM" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <iframe src="https://www.youtube.com/embed/Vhne4KKyRlM" loading="lazy" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
           </div>
         </div>
         <div class="video-card">
           <div class="video-frame vertical">
-            <iframe src="https://www.youtube.com/embed/MNh68EomALk" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <iframe src="https://www.youtube.com/embed/MNh68EomALk" loading="lazy" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
           </div>
         </div>
         <div class="video-card">
           <div class="video-frame vertical">
-            <iframe src="https://www.youtube.com/embed/dPnmuwV311Y" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <iframe src="https://www.youtube.com/embed/dPnmuwV311Y" loading="lazy" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
           </div>
         </div>
         <div class="video-card">
           <div class="video-frame vertical">
-            <iframe src="https://www.youtube.com/embed/2s6wNpIQRFQ" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <iframe src="https://www.youtube.com/embed/2s6wNpIQRFQ" loading="lazy" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
           </div>
         </div>
       </div>
+      <button type="button" class="see-more" id="shortsMore" aria-expanded="false" aria-controls="shortsRow">See More</button>
     </div>
 
     <div class="work-cat" style="margin-bottom:0;">
       <h3 style="margin-bottom:14px;">Long-Form</h3>
-      <div class="video-row">
-        <div class="video-card" style="flex:1 1 440px; max-width:540px; min-width:0;">
+      <div class="video-row" id="longRow">
+        <div class="video-card">
           <div class="video-frame">
             <iframe src="https://www.youtube.com/embed/Ipv9DjSkM-w" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
           </div>
         </div>
-        <div class="video-card" style="flex:1 1 440px; max-width:540px; min-width:0;">
+        <div class="video-card">
           <div class="video-frame">
-            <iframe src="https://www.youtube.com/embed/vhhNYzFZvzk" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <iframe src="https://www.youtube.com/embed/ru2bHAhCsbU" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+          </div>
+        </div>
+        <div class="video-card">
+          <div class="video-frame">
+            <iframe src="https://www.youtube.com/embed/vhhNYzFZvzk" loading="lazy" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
           </div>
         </div>
       </div>
+      <button type="button" class="see-more" id="longMore" aria-expanded="false" aria-controls="longRow">See More</button>
     </div>
   </div>
 </section>
@@ -669,6 +677,22 @@
     });
   });
 
+  /* "See More" (small screens): reveal the hidden shorts / long videos in place, staggered in */
+  [['shortsRow', 'shortsMore'], ['longRow', 'longMore']].forEach(([rowId, btnId]) => {
+    const row = document.getElementById(rowId);
+    const btn = document.getElementById(btnId);
+    if(!row || !btn) return;
+    btn.addEventListener('click', () => {
+      const extra = Array.from(row.children).slice(2);
+      extra.forEach((card, i) => { card.style.transitionDelay = `${i * 90}ms`; });
+      row.classList.add('expanded');
+      btn.hidden = true;
+      btn.setAttribute('aria-expanded', 'true');
+      void row.offsetHeight; /* let them render at opacity 0 first, then fade up */
+      requestAnimationFrame(() => extra.forEach(card => card.classList.add('in')));
+    });
+  });
+
   /* video lightbox: opens a floating frame over the page instead of playing inline */
   const lightbox = document.getElementById('lightbox');
   const lightboxInner = document.getElementById('lightboxInner');
@@ -714,6 +738,37 @@
     document.querySelectorAll('a,button,.video-frame').forEach(el => {
       el.addEventListener('mouseenter', () => ring.classList.add('hover'));
       el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+    });
+
+    /* soft hover tick: a tiny, breathy noise-tap synthesized on the fly, no audio file needed.
+       Starts muted until the first click, per browser autoplay rules. */
+    let audioCtx = null, audioReady = false;
+    const armAudio = () => {
+      if (audioReady) return;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      audioReady = true;
+      window.removeEventListener('pointerdown', armAudio);
+    };
+    window.addEventListener('pointerdown', armAudio, { once:true });
+    function hoverTick(){
+      if (!audioReady || audioCtx.state === 'suspended') return;
+      const t0 = audioCtx.currentTime;
+      const bufferSize = audioCtx.sampleRate * 0.03;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass'; filter.frequency.value = 2200; filter.Q.value = 0.7;
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(0.05, t0);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.05);
+      noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+      noise.start(t0); noise.stop(t0 + 0.05);
+    }
+    document.querySelectorAll('a,button,.video-frame,.tool-icon').forEach(el => {
+      el.addEventListener('mouseenter', hoverTick);
     });
   }
 

@@ -330,7 +330,8 @@
     .shorts-row.cols-5{grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; max-width:640px;}
     .shorts-row.cols-5:not(.expanded) .video-card:nth-child(n+3){display:none;}
     .video-row{grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px;}
-    #longRow:not(.expanded) .video-card:nth-child(n+3){display:none;}
+    #longRow:not(.expanded) .video-card:nth-child(n+3),
+    #motionRow:not(.expanded) .video-card:nth-child(n+3){display:none;}
     .see-more{display:inline-flex; align-items:center; justify-content:center;}
     .about-grid{grid-template-columns:1fr; gap:44px;}
     .about-grid p{max-width:none;}
@@ -556,7 +557,7 @@
 
     <div class="work-cat" style="margin-bottom:0;">
       <h3 style="margin-bottom:14px;">Motion Graphics</h3>
-      <div class="video-row">
+      <div class="video-row" id="motionRow">
         <div class="video-card">
           <div class="video-frame">
             <iframe src="https://www.youtube.com/embed/CviqgCmgBUQ" loading="lazy" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
@@ -567,7 +568,13 @@
             <iframe src="https://www.youtube.com/embed/CLOsKI6Ji_I" loading="lazy" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
           </div>
         </div>
+        <div class="video-card">
+          <div class="video-frame">
+            <iframe src="https://www.youtube.com/embed/KXgR9bRVBJ0" loading="lazy" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+          </div>
+        </div>
       </div>
+      <button type="button" class="see-more" id="motionMore" aria-expanded="false" aria-controls="motionRow">See More</button>
     </div>
   </div>
 </section>
@@ -704,7 +711,7 @@
   });
 
   /* "See More" (small screens): reveal the hidden shorts / long videos in place, staggered in */
-  [['shortsRow', 'shortsMore'], ['longRow', 'longMore']].forEach(([rowId, btnId]) => {
+  [['shortsRow', 'shortsMore'], ['longRow', 'longMore'], ['motionRow', 'motionMore']].forEach(([rowId, btnId]) => {
     const row = document.getElementById(rowId);
     const btn = document.getElementById(btnId);
     if(!row || !btn) return;
